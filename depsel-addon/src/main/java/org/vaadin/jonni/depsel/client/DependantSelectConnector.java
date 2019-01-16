@@ -2,6 +2,7 @@ package org.vaadin.jonni.depsel.client;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.vaadin.jonni.depsel.DependantSelect;
 
@@ -10,8 +11,10 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
+import com.vaadin.client.BrowserInfo;
 import com.vaadin.client.annotations.OnStateChange;
 import com.vaadin.client.ui.AbstractFieldConnector;
 import com.vaadin.client.ui.VNativeSelect;
@@ -45,6 +48,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 
 	@OnStateChange("optionMapping")
 	private void onMappingChange() {
+		log("onMappingChange "+getState().optionMapping);
 		Connector masterSelect = getState().masterSelect;
 		NativeSelectConnector mastersConnector = ((NativeSelectConnector) masterSelect);
 		VNativeSelect masterWidget = mastersConnector.getWidget();
@@ -56,6 +60,24 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 		// because there is no GWT API for listening for value changes that happen
 		// programmatically, listen via JSNI
 		addJsHandler(maserListBox.getElement());
+		
+		// because IE and Edge browserS do not notify about mutations on programmatic
+		// changes, we need to check for value changes periodically
+		if (BrowserInfo.get().isIE() || BrowserInfo.get().isEdge()) {
+			Timer checker = new Timer() {
+				private String lastKnownMasterValue;
+				@Override
+				public void run() {
+					String masterValue = maserListBox.getSelectedItemText();
+					if (!Objects.equals(lastKnownMasterValue, masterValue)) {
+						updateOptionsList();
+					}
+					lastKnownMasterValue = masterValue;
+				}
+			};
+			checker.scheduleRepeating(100);
+		}
+		
 		updateOptionsListBasedOnMasterListBox(maserListBox);
 	}
 
@@ -77,6 +99,8 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 		var callback = function(mutationsList, observer) {
 			for (var i = 0; i < mutationsList.length; i++) {
 				var mutation = mutationsList[i];
+				console.warn("'"+mutation.type+"' happened!");
+				console.warn(mutation);
 				if (mutation.type == 'attributes') {
 					self.@org.vaadin.jonni.depsel.client.DependantSelectConnector::updateOptionsList()();
 				}
@@ -154,6 +178,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 
 	@OnStateChange({ "value" })
 	private void onValueChange() {
+		postponedValue = null;
 		ListBox listBox = getWidget().getListBox();
 		String newVal = getState().value;
 		if (newVal == null) {
@@ -180,5 +205,6 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 		}
 		return found;
 	}
+	
 
 }

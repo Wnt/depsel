@@ -68,7 +68,8 @@ public class DemoUI extends UI {
 		Button serverSideSetterButton = new Button("Set input values from server-side", click -> {
 			Random r = new Random();
 			HashMap<String, List<String>> mappings;
-			if (r.nextBoolean()) {
+			boolean showAll = r.nextBoolean();
+			if (showAll) {
 				showAllCheckbox.setValue(true);
 				mappings = getFullMappings();
 			} else {
@@ -93,11 +94,32 @@ public class DemoUI extends UI {
 			}
 			firstField.setValue(firstValue);
 			secondField.setValue(secondValue);
-			String msg = "Setting values from server-side to " + firstValue + " - " + secondValue;
+			String msg = "Setting values from server-side to " + firstValue + " - " + secondValue + " showing all: " + showAll;
 			System.out.println(msg);
 			Notification.show(msg, Type.TRAY_NOTIFICATION);
 		});
-		VerticalLayout mockForm = new VerticalLayout(new HorizontalLayout(showAllCheckbox, serverSideSetterButton),
+		VerticalLayout mockForm = new VerticalLayout(new HorizontalLayout(showAllCheckbox, serverSideSetterButton,
+				
+				new Button("1", click -> {
+					showAllCheckbox.setValue(false);
+					firstField.setValue("B");
+					secondField.setValue("B");
+		}
+		),
+				
+				new Button("2", click -> {
+					firstField.setValue("B");
+					secondField.setValue("B");
+		}
+		),
+				
+				new Button("3", click -> {
+					firstField.setValue("C");
+					secondField.setValue("A");
+		}
+		)
+				
+				),
 				layout);
 		setContent(mockForm);
 	}
