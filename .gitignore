@@ -1,8 +1,9 @@
 .project
 .settings/
-depsel-addon/
 depsel-demo/.classpath
 depsel-demo/.project
 depsel-demo/.settings/
 depsel-demo/src/main/webapp/VAADIN/themes/demo/styles.scss.cache
 depsel-demo/target/
+depsel-addon/.classpath
+depsel-addon/target/
