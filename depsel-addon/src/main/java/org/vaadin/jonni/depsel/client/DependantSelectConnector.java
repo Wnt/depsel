@@ -48,7 +48,6 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 
 	@OnStateChange("optionMapping")
 	private void onMappingChange() {
-		log("onMappingChange "+getState().optionMapping);
 		Connector masterSelect = getState().masterSelect;
 		NativeSelectConnector mastersConnector = ((NativeSelectConnector) masterSelect);
 		VNativeSelect masterWidget = mastersConnector.getWidget();
