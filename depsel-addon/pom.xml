@@ -5,8 +5,8 @@
 	<groupId>org.vaadin.jonni</groupId>
 	<artifactId>depsel</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0</version>
-	<name>MyComponent Add-on</name>
+	<version>1.0.1</version>
+	<name>Depsel Add-on</name>
 
 	<prerequisites>
 		<maven>3</maven>
@@ -102,6 +102,7 @@
 							<Vaadin-Package-Version>1</Vaadin-Package-Version>
 							<Vaadin-License-Title>${Vaadin-License-Title}</Vaadin-License-Title>
 							<Vaadin-Widgetsets>org.vaadin.jonni.depsel.WidgetSet</Vaadin-Widgetsets>
+							<Implementation-Vendor>Jonni Madekivi</Implementation-Vendor>
 						</manifestEntries>
 					</archive>
 				</configuration>
