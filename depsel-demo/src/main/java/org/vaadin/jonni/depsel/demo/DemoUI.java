@@ -56,7 +56,7 @@ public class DemoUI extends UI {
 				setAllOptionsToSelects(secondField);
 			} else {
 
-				setLimitedOptionsToPair(secondField);
+				setLimitedOptionsToSelects(secondField);
 			}
 		});
 
@@ -124,9 +124,9 @@ public class DemoUI extends UI {
 		setContent(mockForm);
 	}
 
-	private void setLimitedOptionsToPair(DependantSelect dependantSelectPair) {
+	private void setLimitedOptionsToSelects(DependantSelect dependantSelect) {
 		HashMap<String, List<String>> valueMapping = getLimitedMappings();
-		dependantSelectPair.setOptionMapping(valueMapping);
+		dependantSelect.setOptionMapping(valueMapping);
 	}
 
 	private void setAllOptionsToSelects(DependantSelect dependantSelect) {
