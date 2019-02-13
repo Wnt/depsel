@@ -28,11 +28,13 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 	private HandlerRegistration changeHandlerRegistration;
 	private String postponedValue;
 	private List<String> currentValueList;
-
+	private VNativeSelect masterWidget;
+	private Timer checker;
+	
 	public DependantSelectConnector() {
 		getWidget().getListBox().addChangeHandler(event -> {
 			String selectedValue = getWidget().getListBox().getSelectedValue();
-			getRpcProxy(SetDependantSelectValue.class).setValue(selectedValue);
+			getRpcProxy(DependantSelectClientRpc.class).setValue(selectedValue);
 		});
 	}
 
@@ -46,12 +48,19 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 		return (DependantSelectState) super.getState();
 	}
 
+	@OnStateChange("masterSelect")
+	private void onMasterChange() {
+		Connector masterSelect = getState().masterSelect;
+		NativeSelectConnector mastersConnector = ((NativeSelectConnector) masterSelect);
+		masterWidget = mastersConnector.getWidget();		
+	}
+	
 	@OnStateChange("optionMapping")
 	private void onMappingChange() {
 		Connector masterSelect = getState().masterSelect;
 		NativeSelectConnector mastersConnector = ((NativeSelectConnector) masterSelect);
-		VNativeSelect masterWidget = mastersConnector.getWidget();
-
+		masterWidget = mastersConnector.getWidget();		
+		
 		ListBox maserListBox = masterWidget.getListBox();
 		if (changeHandlerRegistration != null) {
 			changeHandlerRegistration.removeHandler();
@@ -63,7 +72,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 		// because IE and Edge browserS do not notify about mutations on programmatic
 		// changes, we need to check for value changes periodically
 		if (BrowserInfo.get().isIE() || BrowserInfo.get().isEdge()) {
-			Timer checker = new Timer() {
+			checker = new Timer() {
 				private String lastKnownMasterValue;
 				@Override
 				public void run() {
@@ -76,17 +85,19 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 			};
 			checker.scheduleRepeating(100);
 		}
-		
 		updateOptionsListBasedOnMasterListBox(maserListBox);
 	}
 
+	@Override
+	public void onUnregister() {
+		super.onUnregister();
+		// Checker needs to cancelled when component is detached
+		checker.cancel();
+	}
+	
 	public void updateOptionsList() {
-		Connector dependantComponent = getState().masterSelect;
-		NativeSelectConnector c = ((NativeSelectConnector) dependantComponent);
-		VNativeSelect w = c.getWidget();
-
-		ListBox listBox = w.getListBox();
-		updateOptionsListBasedOnMasterListBox(listBox);
+		ListBox masterListBox = masterWidget.getListBox();
+		updateOptionsListBasedOnMasterListBox(masterListBox);
 	}
 
 	private native JavaScriptObject addJsHandler(JavaScriptObject e) /*-{
@@ -116,7 +127,10 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 	}-*/;
 
 	private void updateOptionsListBasedOnMasterListBox(ListBox masterListBox) {
-		String masterValue = masterListBox.getSelectedItemText();
+		String masterValue = "";
+		if (masterListBox != null && masterListBox.getSelectedItemText() != null ) {
+			masterValue = masterListBox.getSelectedItemText();
+		}
 		if ("".equals(masterValue)) {
 			setOptions(Arrays.asList());
 			return;
@@ -156,7 +170,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 			setValueToListBox(listBox, postponedValue);
 			postponedValue = null;
 			// because the value might have changed, sync to server
-			getRpcProxy(SetDependantSelectValue.class).setValue(listBox.getSelectedItemText());
+			getRpcProxy(DependantSelectClientRpc.class).setValue(listBox.getSelectedItemText());
 		}
 		currentValueList = optionList;
 	}
