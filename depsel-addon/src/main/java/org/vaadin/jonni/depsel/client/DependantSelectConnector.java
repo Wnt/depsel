@@ -34,7 +34,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 	public DependantSelectConnector() {
 		getWidget().getListBox().addChangeHandler(event -> {
 			String selectedValue = getWidget().getListBox().getSelectedValue();
-			getRpcProxy(DependantSelectClientRpc.class).setValue(selectedValue);
+			getRpcProxy(DependantSelectServerRpc.class).setValue(selectedValue);
 		});
 	}
 
@@ -170,7 +170,7 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 			setValueToListBox(listBox, postponedValue);
 			postponedValue = null;
 			// because the value might have changed, sync to server
-			getRpcProxy(DependantSelectClientRpc.class).setValue(listBox.getSelectedItemText());
+			getRpcProxy(DependantSelectServerRpc.class).setValue(listBox.getSelectedItemText());
 		}
 		currentValueList = optionList;
 	}

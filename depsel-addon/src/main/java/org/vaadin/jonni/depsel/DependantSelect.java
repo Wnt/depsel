@@ -3,9 +3,10 @@ package org.vaadin.jonni.depsel;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 
 import org.vaadin.jonni.depsel.client.DependantSelectState;
-import org.vaadin.jonni.depsel.client.DependantSelectClientRpc;
+import org.vaadin.jonni.depsel.client.DependantSelectServerRpc;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.NativeSelect;
@@ -33,8 +34,17 @@ public class DependantSelect extends AbstractField<String> implements SingleSele
 		getState().emptySelectionAllowed = true;
 		getState().emptySelectionCaption = "";
 
-		DependantSelectClientRpc r = newValue -> getState().value = newValue;
-		registerRpc(r);
+		DependantSelect component = this;
+		
+		DependantSelectServerRpc rpc = new DependantSelectServerRpc() {
+			@Override
+			public void setValue(String value) {
+				getState().value = value;
+				fireEvent(new ValueChangeEvent(component,value,true));				
+			}			
+		};
+				
+		registerRpc(rpc);
 	}
 
 	/**
@@ -46,7 +56,7 @@ public class DependantSelect extends AbstractField<String> implements SingleSele
 	public void setOptionMapping(Map<String, List<String>> optionMapping) {
 		Objects.requireNonNull(masterSelect, "optionMapping cannot be null");
 
-		getMasterSelect().setItems(optionMapping.keySet());
+		getMasterSelect().setItems(new TreeSet<String>(optionMapping.keySet()));
 		getState().optionMapping = optionMapping;
 	}
 

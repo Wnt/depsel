@@ -66,6 +66,11 @@ public class DemoUI extends UI {
 			}
 		});
 		
+		secondField.addValueChangeListener(event -> {
+			System.out.println(event.getValue()+" "+event.isUserOriginated());
+		});
+		
+		
 		
 		setAllOptionsToSelects(secondField);
 
