@@ -92,7 +92,8 @@ public class DependantSelectConnector extends AbstractFieldConnector {
 	public void onUnregister() {
 		super.onUnregister();
 		// Checker needs to cancelled when component is detached
-		checker.cancel();
+		if (BrowserInfo.get().isIE() || BrowserInfo.get().isEdge())
+			checker.cancel();
 	}
 	
 	public void updateOptionsList() {
