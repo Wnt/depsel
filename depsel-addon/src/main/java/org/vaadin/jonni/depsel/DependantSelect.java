@@ -2,9 +2,11 @@ package org.vaadin.jonni.depsel;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TreeSet;
 
 import org.vaadin.jonni.depsel.client.DependantSelectState;
-import org.vaadin.jonni.depsel.client.SetDependantSelectValue;
+import org.vaadin.jonni.depsel.client.DependantSelectServerRpc;
 
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.NativeSelect;
@@ -22,26 +24,39 @@ public class DependantSelect extends AbstractField<String> implements SingleSele
 	/**
 	 * Constructs a DependantSelect field with the given masterSelect field.
 	 * 
-	 * @param masterSelect
+	 * @param masterSelect The master select component, not null
 	 */
-	public DependantSelect(NativeSelect<String> masterSelect) {
+	public DependantSelect(NativeSelect<String> masterSelect) {		
+		Objects.requireNonNull(masterSelect, "masterSelect cannot be null");
+		
 		this.masterSelect = masterSelect;
 		getState().masterSelect = masterSelect;
 		getState().emptySelectionAllowed = true;
 		getState().emptySelectionCaption = "";
 
-		SetDependantSelectValue r = newValue -> getState().value = newValue;
-		registerRpc(r);
+		DependantSelect component = this;
+		
+		DependantSelectServerRpc rpc = new DependantSelectServerRpc() {
+			@Override
+			public void setValue(String value) {
+				getState().value = value;
+				fireEvent(new ValueChangeEvent(component,value,true));				
+			}			
+		};
+				
+		registerRpc(rpc);
 	}
 
 	/**
 	 * Sets the option list mappings from master select to this DependantSelect.
 	 * This also sets the items to the master select.
 	 * 
-	 * @param optionMapping
+	 * @param optionMapping The option mapping, not null
 	 */
 	public void setOptionMapping(Map<String, List<String>> optionMapping) {
-		getMasterSelect().setItems(optionMapping.keySet());
+		Objects.requireNonNull(masterSelect, "optionMapping cannot be null");
+
+		getMasterSelect().setItems(new TreeSet<String>(optionMapping.keySet()));
 		getState().optionMapping = optionMapping;
 	}
 

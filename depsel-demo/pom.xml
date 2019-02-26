@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.jonni</groupId>
 	<artifactId>depsel-demo</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.2</version>
+	<version>1.0.6</version>
 	<name>MyComponent Add-on Demo</name>
 
 	<prerequisites>
@@ -113,8 +113,8 @@
 					<execution>
 						<configuration>
 							<!-- if you don't specify any modules, the plugin will find them -->
-						</configuration>
-						<goals>
+							<style>DETAILED</style>
+						</configuration>						<goals>
 							<goal>resources</goal>
 							<goal>update-widgetset</goal>
 							<goal>compile</goal>

@@ -11,6 +11,8 @@ import javax.servlet.annotation.WebServlet;
 
 import org.vaadin.jonni.depsel.DependantSelect;
 
+import com.vaadin.annotations.PreserveOnRefresh;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -29,6 +31,8 @@ import com.vaadin.ui.VerticalLayout;
 
 @Theme("demo")
 @Title("Depsel component Demo")
+@Push
+@PreserveOnRefresh
 @SuppressWarnings("serial")
 public class DemoUI extends UI {
 
@@ -45,20 +49,39 @@ public class DemoUI extends UI {
 
 		NativeSelect<String> firstField = new NativeSelect<>();
 		firstField.setWidth("56px");
-
+		firstField.setValue(null);
+		
 		DependantSelect secondField = new DependantSelect(firstField);
 		secondField.setWidth("56px");
 
+		firstField.addValueChangeListener(event -> {
+			if (firstField.getValue() != null) {
+				switch (firstField.getValue()) {
+					case "N": secondField.setValue("N"); break;  
+					case "D": secondField.setValue("D"); break;  
+					case "C": secondField.setValue("C"); break;  
+					case "R": secondField.setValue("R"); break;
+					default: break;
+				}
+			}
+		});
+		
+		secondField.addValueChangeListener(event -> {
+			System.out.println(event.getValue()+" "+event.isUserOriginated());
+		});
+		
+		
+		
 		setAllOptionsToSelects(secondField);
 
 		showAllCheckbox.addValueChangeListener(change -> {
 			if (showAllCheckbox.getValue()) {
 				setAllOptionsToSelects(secondField);
 			} else {
-
 				setLimitedOptionsToSelects(secondField);
 			}
 		});
+		showAllCheckbox.setValue(true);
 
 		Button button = new Button("Show field values", click -> Notification
 				.show("First field: " + firstField.getValue() + ", second: " + secondField.getValue()));
@@ -102,20 +125,20 @@ public class DemoUI extends UI {
 				
 				new Button("1", click -> {
 					showAllCheckbox.setValue(false);
-					firstField.setValue("B");
-					secondField.setValue("B");
+					firstField.setValue("N");
+					secondField.setValue("N");
 		}
 		),
 				
 				new Button("2", click -> {
-					firstField.setValue("B");
-					secondField.setValue("B");
+					firstField.setValue("D");
+					secondField.setValue("D");
 		}
 		),
 				
 				new Button("3", click -> {
 					firstField.setValue("C");
-					secondField.setValue("A");
+					secondField.setValue("R");
 		}
 		)
 				
@@ -136,19 +159,19 @@ public class DemoUI extends UI {
 
 	private HashMap<String, List<String>> getFullMappings() {
 		HashMap<String, List<String>> valueMapping = new HashMap<>();
-		valueMapping.put("A", Arrays.asList("A"));
-		valueMapping.put("B", Arrays.asList("B"));
-		valueMapping.put("C", Arrays.asList("A", "B", "C", "D"));
-		valueMapping.put("D", Arrays.asList("A", "B", "C", "D"));
+		valueMapping.put("N", Arrays.asList("N"));
+		valueMapping.put("D", Arrays.asList("D"));
+		valueMapping.put("R", Arrays.asList("N", "C", "D", "R"));
+		valueMapping.put("C", Arrays.asList("N", "C", "D", "R"));
 		return valueMapping;
 	}
 
 	private HashMap<String, List<String>> getLimitedMappings() {
 		HashMap<String, List<String>> valueMapping = new HashMap<>();
-		valueMapping.put("A", Arrays.asList("A"));
-		valueMapping.put("B", Arrays.asList("B"));
-		valueMapping.put("C", Arrays.asList("A", "B"));
-		valueMapping.put("D", Arrays.asList("A", "B"));
+		valueMapping.put("N", Arrays.asList("N"));
+		valueMapping.put("D", Arrays.asList("D"));
+		valueMapping.put("R", Arrays.asList("R", "C"));
+		valueMapping.put("C", Arrays.asList("R", "C"));
 		return valueMapping;
 	}
 }
